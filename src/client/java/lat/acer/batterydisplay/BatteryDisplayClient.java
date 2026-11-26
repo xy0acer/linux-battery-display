@@ -18,8 +18,8 @@ public final class BatteryDisplayClient implements ClientModInitializer {
     private static final int MARGIN = 6;
     private static final int TEXTURE_SIZE = 16;
     private static final int ICON_WIDTH = 16;
-    private static final int ICON_TOP = 3;
-    private static final int ICON_HEIGHT = 11;
+    private static final int ICON_TOP = 4;
+    private static final int ICON_HEIGHT = 9;
     // Default-font digits and '%' have 7 visible rows; lineHeight includes spacing.
     private static final int TEXT_HEIGHT = 7;
     private static final int ICON_TEXT_GAP = 3;
@@ -83,6 +83,6 @@ public final class BatteryDisplayClient implements ClientModInitializer {
                     0.0F, 0.0F, BOLT_SIZE, BOLT_SIZE, BOLT_SIZE, BOLT_SIZE);
         }
         graphics.text(client.font, text, x + ICON_WIDTH + ICON_TEXT_GAP,
-                y + (ICON_HEIGHT - TEXT_HEIGHT) / 2, TEXT_COLOR, true);
+                y, TEXT_COLOR, true);
     }
 }
