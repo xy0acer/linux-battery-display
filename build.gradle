@@ -1,0 +1,110 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+
+base {
+    archivesName = 'batterydisplay'
+}
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        'batterydisplay' {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    testImplementation platform('org.junit:junit-bom:5.13.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+processResources {
+    def modVersion = project.version
+    inputs.property 'version', modVersion
+    filesMatching('fabric.mod.json') {
+        expand 'version': modVersion
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+    withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+}
+
+test {
+    useJUnitPlatform()
+    // Keep test-created files in this project, not the system temp directory.
+    def temporaryDirectory = layout.buildDirectory.dir('tmp/tests')
+    systemProperty 'java.io.tmpdir', temporaryDirectory.get().asFile.absolutePath
+    doFirst {
+        temporaryDirectory.get().asFile.mkdirs()
+    }
+}
+
+jar {
+    from('LICENSE')
+}
+
+// Compilation alone cannot catch a misspelled Fabric entry point or missing PNG.
+def verifyModJar = tasks.register('verifyModJar') {
+    group = 'verification'
+    description = 'Checks the packaged mod ID, entry points, and artwork.'
+    inputs.file(tasks.named('jar', Jar).flatMap { it.archiveFile })
+
+    doLast { task ->
+        new java.util.zip.ZipFile(task.inputs.files.singleFile).withCloseable { zip ->
+            def metadataEntry = zip.getEntry('fabric.mod.json')
+            if (metadataEntry == null) {
+                throw new GradleException('The JAR is missing fabric.mod.json')
+            }
+            def metadata = zip.getInputStream(metadataEntry).withCloseable { stream ->
+                new groovy.json.JsonSlurper().parseText(stream.getText('UTF-8'))
+            }
+            if (metadata.id != 'batterydisplay') {
+                throw new GradleException('Expected the mod ID batterydisplay')
+            }
+            if (!metadata.entrypoints?.client) {
+                throw new GradleException('The mod must declare a client entry point')
+            }
+            metadata.entrypoints.client.each { entrypoint ->
+                def classPath = entrypoint.replace('.', '/') + '.class'
+                if (zip.getEntry(classPath) == null) {
+                    throw new GradleException("Entry-point class is missing from the JAR: ${entrypoint}")
+                }
+            }
+            def assets = [metadata.icon, 'assets/batterydisplay/textures/gui/bolt.png']
+            (0..13).each { index ->
+                def suffix = index < 10 ? "0${index}" : "${index}"
+                assets.add("assets/batterydisplay/textures/gui/battery_${suffix}.png".toString())
+            }
+            assets.each { path ->
+                if (!path || zip.getEntry(path) == null) {
+                    throw new GradleException("Artwork is missing from the JAR: ${path}")
+                }
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn verifyModJar
+}
