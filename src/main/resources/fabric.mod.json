@@ -10,7 +10,13 @@
   "entrypoints": {
     "client": [
       "lat.acer.batterydisplay.BatteryDisplayClient"
+    ],
+    "modmenu": [
+      "lat.acer.batterydisplay.BatteryDisplayModMenu"
     ]
+  },
+  "suggests": {
+    "modmenu": "*"
   },
   "depends": {
     "fabricloader": ">=0.20.1",
