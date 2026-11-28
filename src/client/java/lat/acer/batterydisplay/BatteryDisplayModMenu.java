@@ -10,3 +10,4 @@ public final class BatteryDisplayModMenu implements ModMenuApi {
         return parent -> new BatteryDisplayConfigScreen(parent, BatteryDisplayClient.config());
     }
 }
+// vienvieffjv
