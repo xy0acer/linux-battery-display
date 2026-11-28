@@ -57,12 +57,13 @@ public final class BatteryDisplayConfigScreen extends OptionsSubScreen {
     }
 
     private static OptionInstance<Boolean> bool(String name, boolean initial,
-            OptionInstance.ValueUpdateListener<Boolean> listener) {
-        return OptionInstance.createBoolean(KEY + name, tooltip(name), initial, listener);
+            java.util.function.Consumer<Boolean> listener) {
+        // Lambdas bridge the listener type, which is Consumer on 26.1 and ValueUpdateListener later.
+        return OptionInstance.createBoolean(KEY + name, tooltip(name), initial, value -> listener.accept(value));
     }
 
     private static OptionInstance<Integer> threshold(String name, int initial,
-            OptionInstance.ValueUpdateListener<Integer> listener) {
+            java.util.function.Consumer<Integer> listener) {
         return slider(name, 0, 100, initial,
                 value -> value == 0 ? CommonComponents.OPTION_OFF : Component.literal(value + "%"),
                 listener);
@@ -70,10 +71,10 @@ public final class BatteryDisplayConfigScreen extends OptionsSubScreen {
 
     private static OptionInstance<Integer> slider(String name, int min, int max, int initial,
             java.util.function.Function<Integer, Component> label,
-            OptionInstance.ValueUpdateListener<Integer> listener) {
+            java.util.function.Consumer<Integer> listener) {
         return new OptionInstance<>(KEY + name, tooltip(name),
                 (caption, value) -> Options.genericValueLabel(caption, label.apply(value)),
-                new OptionInstance.IntRange(min, max), initial, listener);
+                new OptionInstance.IntRange(min, max), initial, value -> listener.accept(value));
     }
 
     private OptionInstance<HudLayout.Corner> corner() {

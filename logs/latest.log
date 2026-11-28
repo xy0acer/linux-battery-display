@@ -1,4 +1,4 @@
-[12:38:50] [Test worker/WARN]: Could not read /home/noi/Sea/.repos/linux-battery-display/build/tmp/tests/junit-9073728629512816854/batterydisplay.json; using defaults without overwriting it
+[14:09:25] [Test worker/WARN]: Could not read /home/noi/Sea/.repos/linux-battery-display/build/tmp/tests/junit-1598727616453220762/batterydisplay.json; using defaults without overwriting it
 com.google.gson.JsonSyntaxException: com.google.gson.stream.MalformedJsonException: Expected name at line 1 column 19 path $.enabled
 See https://github.com/google/gson/blob/main/Troubleshooting.md#malformed-json
 	at com.google.gson.Gson.fromJson(Gson.java:1106)

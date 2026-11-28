@@ -4,6 +4,7 @@
 build/
 bin/
 run/
+logs/
 .idea/
 *.iml
 README.md

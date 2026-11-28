@@ -81,8 +81,10 @@ public final class BatteryDisplayClient implements ClientModInitializer {
         // Unbound by default so it cannot conflict; players assign it under Controls.
         var category = KeyMapping.Category.register(
                 Identifier.fromNamespaceAndPath("batterydisplay", "main"));
+        // The (name, keysym, category) constructor exists on every supported version; the
+        // InputConstants.Type enum it would otherwise need was renamed in 26.3.
         toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.batterydisplay.toggle",
-                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
+                InputConstants.UNKNOWN.getValue(), category));
         ClientTickEvents.END_CLIENT_TICK.register(this::tick);
 
         // Inherit vanilla's hide-HUD (F1) behavior from the chat layer.
@@ -107,7 +109,7 @@ public final class BatteryDisplayClient implements ClientModInitializer {
                     SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_BELL, 1.0F));
         }
         if (config.warningToast) {
-            SystemToast.addOrUpdate(client.gui.toastManager(), WARNING_TOAST,
+            SystemToast.addOrUpdate(ToastAccess.of(client), WARNING_TOAST,
                     Component.translatable("batterydisplay.toast.low.title"),
                     Component.translatable("batterydisplay.toast.low.body", state.displayText()));
         }
